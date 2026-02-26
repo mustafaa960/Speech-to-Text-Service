@@ -32,7 +32,7 @@ Powered by [Faster-Whisper](https://github.com/SYSTRAN/faster-whisper) — runs 
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/Speech-to-Text-Service.git
+git clone https://github.com/mustafaa960/Speech-to-Text-Service.git
 cd Speech-to-Text-Service
 
 # Create virtual environment
