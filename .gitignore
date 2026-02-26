@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual Environment
+.venv/
+venv/
+ENV/
+
+# PyInstaller
+build/
+dist/
+# Old spec files (keep STT-Service-v7.spec)
+STT-Service-v[0-6].spec
+Speech-to-Text-Service.spec
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Temp
+*.tmp
+*.log
+
+# Old assets (no longer used)
+background.png
+background_hq.png
+icon_bg.png
+icon_bg_flash.png
