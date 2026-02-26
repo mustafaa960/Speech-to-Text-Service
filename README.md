@@ -96,6 +96,18 @@ The executable will be created at `dist/STT-Service-v7.exe`.
 
 ---
 
+## 🍎 Mac Compatibility (Work in Progress)
+
+Currently, the application is optimized for **Windows**. To run it on macOS or make it fully cross-platform, the following modifications are required:
+
+- **Hotkeys**: Replace the Windows-specific `keyboard` library with a cross-platform equivalent like `pynput` (requires Accessibility permissions on Mac).
+- **Clipboard/Paste**: Update the auto-paste shortcut from `Ctrl+V` to `Command+V` (`⌘+V`).
+- **GPU Acceleration**: NVIDIA CUDA is not available on Apple Silicon (M1/M2/M3). The application will automatically fall back to CPU execution, which is fully supported but slower.
+- **UI Translucency**: The Windows-only `-transparentcolor` Tkinter attribute must be bypassed or replaced with a Mac-friendly alternative.
+- **Bundling**: Build a `.app` bundle using PyInstaller instead of an `.exe`.
+
+---
+
 ## 📁 Project Structure
 
 ```
@@ -144,7 +156,8 @@ Future enhancements planned using additional AI technologies:
 - [ ] **Voice Response (TTS)** — XTTS-v2 for spoken feedback in Arabic/English
 - [ ] **Smart Voice Commands** — all-MiniLM-L6-v2 for semantic command understanding
 - [ ] **Voice Cloning** — OpenVoice for personalized voice output
-- [ ] **GPU Acceleration** — CUDA support for faster transcription
+- [x] **GPU Acceleration** — CUDA support for faster transcription (Windows/NVIDIA)
+- [ ] **Cross-Platform Support** — Full compatibility for macOS & Linux
 
 ---
 
