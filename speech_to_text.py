@@ -36,17 +36,34 @@ import pyperclip
 import pystray
 import sounddevice as sd
 from PIL import Image, ImageDraw
+# Pre-load NVIDIA CUDA DLLs for GPU support
+# ctranslate2 uses LoadLibrary which won't find pip-installed DLLs,
+# so we must explicitly load them before importing faster_whisper
+import ctypes
+import ctypes.util
 
-# Add NVIDIA DLL paths for CUDA support (cuBLAS, cuDNN)
-# Python 3.8+ on Windows requires os.add_dll_directory() for DLL discovery
-_nvidia_dir = os.path.join(sys.prefix, "Lib", "site-packages", "nvidia")
-if os.path.isdir(_nvidia_dir):
-    for _lib in os.listdir(_nvidia_dir):
-        _bin = os.path.join(_nvidia_dir, _lib, "bin")
-        if os.path.isdir(_bin):
-            os.environ["PATH"] = _bin + os.pathsep + os.environ.get("PATH", "")
-            if hasattr(os, "add_dll_directory"):
-                os.add_dll_directory(_bin)
+def _preload_nvidia_dlls():
+    """Find and pre-load NVIDIA DLLs so ctranslate2 can use CUDA."""
+    nvidia_dir = os.path.join(sys.prefix, "Lib", "site-packages", "nvidia")
+    if not os.path.isdir(nvidia_dir):
+        return
+
+    # DLLs that ctranslate2 needs, in dependency order
+    dll_names = [
+        os.path.join(nvidia_dir, "cublas", "bin", "cublasLt64_12.dll"),
+        os.path.join(nvidia_dir, "cublas", "bin", "cublas64_12.dll"),
+        os.path.join(nvidia_dir, "cudnn", "bin", "cudnn64_9.dll"),
+        os.path.join(nvidia_dir, "cudnn", "bin", "cudnn_ops64_9.dll"),
+        os.path.join(nvidia_dir, "cudnn", "bin", "cudnn_cnn64_9.dll"),
+    ]
+    for dll_path in dll_names:
+        if os.path.exists(dll_path):
+            try:
+                ctypes.WinDLL(dll_path)
+            except OSError:
+                pass
+
+_preload_nvidia_dlls()
 
 from faster_whisper import WhisperModel
 
