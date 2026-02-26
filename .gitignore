@@ -13,7 +13,8 @@ ENV/
 build/
 dist/
 # Old spec files (keep STT-Service-v7.spec)
-STT-Service-v[0-6].spec
+STT-Service-v[2-9].spec
+STT-Service-v1?.spec
 Speech-to-Text-Service.spec
 
 # IDE

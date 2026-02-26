@@ -3,7 +3,10 @@
 a = Analysis(
     ['speech_to_text.py'],
     pathex=[],
-    binaries=[],
+    binaries=[
+        ('.venv/Lib/site-packages/nvidia/cublas/bin/cublas64_12.dll', '.'),
+        ('.venv/Lib/site-packages/nvidia/cublas/bin/cublasLt64_12.dll', '.'),
+    ],
     datas=[
         ('.venv/Lib/site-packages/faster_whisper/assets', 'faster_whisper/assets'),
     ],
@@ -35,7 +38,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='STT-Service-v8',
+    name='STT-Service-v1',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

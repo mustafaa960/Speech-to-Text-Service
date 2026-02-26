@@ -121,14 +121,30 @@ audio_queue = queue.Queue()
 # Model Loading
 # ─────────────────────────────────────────────────────────────────────────────
 
+def _cuda_dlls_available():
+    """Check if NVIDIA CUDA DLLs are loadable (pre-loaded by _preload_nvidia_dlls)."""
+    try:
+        ctypes.WinDLL("cublas64_12.dll")
+        return True
+    except OSError:
+        return False
+
+
 def load_model():
     """Load the Whisper model with GPU auto-detection and CPU fallback."""
     global whisper_model, model_loaded
 
     ui_queue.put(("LOADING_START", ""))
 
-    # Try GPU first, fall back to CPU
-    for device, compute in [("cuda", "float16"), ("cpu", "int8")]:
+    # Build device list: only try CUDA if cublas DLLs are available
+    devices = []
+    if _cuda_dlls_available():
+        devices.append(("cuda", "float16"))
+    else:
+        print("[Model] CUDA DLLs not found, using CPU mode.")
+    devices.append(("cpu", "int8"))
+
+    for device, compute in devices:
         try:
             print(f"[Model] Loading '{MODEL_SIZE}' on {device.upper()}...")
             whisper_model = WhisperModel(MODEL_SIZE, device=device, compute_type=compute)

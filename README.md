@@ -89,10 +89,10 @@ To build a standalone `.exe` that runs without Python:
 
 ```bash
 pip install pyinstaller
-python -m PyInstaller STT-Service-v7.spec --clean
+python -m PyInstaller STT-Service-v1.spec --clean
 ```
 
-The executable will be created at `dist/STT-Service-v7.exe`.
+The executable will be created at `dist/STT-Service-v1.exe`.
 
 ---
 
@@ -114,7 +114,7 @@ Currently, the application is optimized for **Windows**. To run it on macOS or m
 Speech-to-Text-Service/
 ├── speech_to_text.py      # Main application
 ├── requirements.txt       # Python dependencies
-├── STT-Service-v7.spec    # PyInstaller build config
+├── STT-Service-v1.spec    # PyInstaller build config
 ├── .gitignore
 └── README.md
 ```
