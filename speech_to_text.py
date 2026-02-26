@@ -183,6 +183,15 @@ def record_until_silence():
     speech_detected = False
     total_duration = 0.0
 
+    # Refresh default device so we always pick the current mic
+    # (e.g. laptop mic after headset is unplugged)
+    sd.default.reset()
+    try:
+        dev_info = sd.query_devices(kind='input')
+        print(f"[Audio] Using input device: {dev_info['name']}")
+    except Exception:
+        print("[Audio] Using system default input device")
+
     print("[Audio] Recording started... Speak now!")
 
     with sd.InputStream(samplerate=SAMPLE_RATE, channels=CHANNELS, dtype="float32") as stream:
