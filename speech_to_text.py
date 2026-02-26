@@ -35,8 +35,20 @@ import numpy as np
 import pyperclip
 import pystray
 import sounddevice as sd
-from faster_whisper import WhisperModel
 from PIL import Image, ImageDraw
+
+# Add NVIDIA DLL paths for CUDA support (cuBLAS, cuDNN)
+# Python 3.8+ on Windows requires os.add_dll_directory() for DLL discovery
+_nvidia_dir = os.path.join(sys.prefix, "Lib", "site-packages", "nvidia")
+if os.path.isdir(_nvidia_dir):
+    for _lib in os.listdir(_nvidia_dir):
+        _bin = os.path.join(_nvidia_dir, _lib, "bin")
+        if os.path.isdir(_bin):
+            os.environ["PATH"] = _bin + os.pathsep + os.environ.get("PATH", "")
+            if hasattr(os, "add_dll_directory"):
+                os.add_dll_directory(_bin)
+
+from faster_whisper import WhisperModel
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Configuration
@@ -44,7 +56,8 @@ from PIL import Image, ImageDraw
 
 # Whisper Model
 MODEL_SIZE = "medium"        # Options: tiny, base, small, medium, large-v3
-COMPUTE_TYPE = "int8"        # INT8 quantization for faster CPU inference
+DEVICE = "cuda"              # Use GPU (set to "cpu" if no NVIDIA GPU)
+COMPUTE_TYPE = "float16"     # FP16 for fast GPU inference (use "int8" for CPU)
 
 # Audio Recording
 SAMPLE_RATE = 16000          # Whisper expects 16kHz audio
@@ -92,20 +105,27 @@ audio_queue = queue.Queue()
 # ─────────────────────────────────────────────────────────────────────────────
 
 def load_model():
-    """Load the Whisper model in a background thread with UI feedback."""
+    """Load the Whisper model with GPU auto-detection and CPU fallback."""
     global whisper_model, model_loaded
 
-    print(f"[Model] Loading Faster-Whisper '{MODEL_SIZE}' model...")
     ui_queue.put(("LOADING_START", ""))
 
-    try:
-        whisper_model = WhisperModel(MODEL_SIZE, device="cpu", compute_type=COMPUTE_TYPE)
-        model_loaded = True
-        print("[Model] Model loaded successfully!")
-        ui_queue.put(("LOADING_DONE", ""))
-    except Exception as e:
-        print(f"[Model] FATAL: Failed to load model: {e}")
-        ui_queue.put(("LOADING_FAIL", str(e)))
+    # Try GPU first, fall back to CPU
+    for device, compute in [("cuda", "float16"), ("cpu", "int8")]:
+        try:
+            print(f"[Model] Loading '{MODEL_SIZE}' on {device.upper()}...")
+            whisper_model = WhisperModel(MODEL_SIZE, device=device, compute_type=compute)
+            model_loaded = True
+            print(f"[Model] ✓ Loaded on {device.upper()} ({compute})")
+            ui_queue.put(("LOADING_DONE", ""))
+            return
+        except Exception as e:
+            print(f"[Model] {device.upper()} failed: {e}")
+            if device == "cuda":
+                print("[Model] Falling back to CPU...")
+
+    print("[Model] FATAL: Could not load model on any device.")
+    ui_queue.put(("LOADING_FAIL", ""))
 
 
 # ─────────────────────────────────────────────────────────────────────────────

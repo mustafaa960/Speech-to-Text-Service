@@ -35,7 +35,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='STT-Service-v7',
+    name='STT-Service-v8',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
